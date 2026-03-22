@@ -1,0 +1,11 @@
+dependencies:
+  idf:
+    version: '>=4.4'
+description: Espressif audio encoder and decoder
+issues: https://github.com/espressif/esp-adf/issues
+repository: git://github.com/espressif/esp-adf-libs.git
+repository_info:
+  commit_sha: 9b89dd9fb5cc474adaddcb79cda692ac2f6afdde
+  path: esp_audio_codec
+url: https://github.com/espressif/esp-adf-libs/tree/master/esp_audio_codec
+version: 2.2.1

@@ -1,0 +1,27 @@
+menu "ESP Boost Configuration"
+
+    config BOOST_CXX_FEATURE_ENABLED
+        bool
+        select COMPILER_CXX_EXCEPTIONS
+        select COMPILER_CXX_RTTI
+        default y
+        help
+            Enable C++ run-time type info feature and C++ exception feature.
+
+    config BOOST_MATH_ENABLED
+        bool "Enable Boost Math library"
+        default y
+        help
+            Enable the Boost Math library components.
+            This includes mathematical functions, distributions, and special functions.
+            Disabling this will exclude all files from boost/math directory.
+
+    config BOOST_SERIALIZATION_ENABLED
+        bool "Enable Boost Serialization library"
+        default y
+        help
+            Enable the Boost Serialization library components.
+            This includes object serialization and deserialization functionality.
+            Disabling this will exclude all files from boost/serialization directory.
+
+endmenu

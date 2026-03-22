@@ -1,0 +1,6 @@
+dependencies:
+  brookesia_core:
+    public: true
+  bsp_extra:
+    public: true
+  espressif/esp-dsp: "*"

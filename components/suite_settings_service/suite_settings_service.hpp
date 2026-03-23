@@ -10,6 +10,11 @@
 
 namespace suite {
 
+enum class UiLanguage : uint8_t {
+    Chinese = 0,
+    English = 1,
+};
+
 struct WifiNetwork {
     std::string ssid;
     int rssi = -100;
@@ -30,6 +35,9 @@ public:
     int getVolume() const;
     esp_err_t setVolume(int value, bool persist = true);
 
+    UiLanguage getLanguage() const;
+    esp_err_t setLanguage(UiLanguage language, bool persist = true);
+
     bool getAutoTimeSync() const;
     esp_err_t setAutoTimeSync(bool enable, bool persist = true);
     bool isTimeSynced() const;
@@ -43,6 +51,7 @@ public:
     bool isWifiConnecting() const;
     std::string getConnectedSsid() const;
     int getWifiSignalLevel() const;
+    esp_err_t getLastWifiError() const;
 
 private:
     SettingsService() = default;
@@ -59,11 +68,13 @@ private:
     esp_err_t prepareNetworkBaseLocked();
     esp_err_t initWifi();
     esp_err_t initWifiLocked();
+    void scheduleTimeSyncLocked();
     void startTimeSyncLocked();
     void stopTimeSyncLocked();
     void updateWifiSignalLocked();
     void finishWifiScan();
 
+    static void deferredTimeSyncTask(void *arg);
     static void wifiEventHandler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
     static void ipEventHandler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
@@ -75,8 +86,13 @@ private:
     bool _wifi_scanning = false;
     bool _wifi_connecting = false;
     bool _wifi_connected = false;
+    bool _suspend_auto_reconnect = false;
+    bool _resume_connection_after_scan = false;
+    bool _disconnect_requested = false;
     bool _time_sync_started = false;
+    bool _time_sync_pending = false;
     bool _auto_time_sync = true;
+    UiLanguage _language = UiLanguage::Chinese;
     int _brightness = 82;
     int _volume = 60;
     int _last_rssi = -100;

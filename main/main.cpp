@@ -7,11 +7,13 @@
 #include <cstring>
 #include "bsp/esp-bsp.h"
 #include "driver/i2c_master.h"
+#include "esp_heap_caps.h"
 #define XPOWERS_CHIP_AXP2101
 #include "XPowersLib.h"
 #include "esp_brookesia.hpp"
 #include "boost/thread.hpp"
 #include "suite_settings_service.hpp"
+#include "suite_ui_font_service.hpp"
 #ifdef ESP_UTILS_LOG_TAG
 #undef ESP_UTILS_LOG_TAG
 #endif
@@ -28,10 +30,9 @@ namespace {
 constexpr uint32_t PMU_I2C_TIMEOUT_MS = 1000;
 constexpr uint32_t PMU_I2C_FREQ = 100000;
 constexpr uint8_t PMU_I2C_ADDRESS = 0x34;
-constexpr uint32_t DISPLAY_BUFFER_LINES = 16;
+constexpr uint32_t DISPLAY_BUFFER_LINES = 8;
 constexpr uint32_t DISPLAY_BUFFER_PIXELS = BSP_LCD_H_RES * DISPLAY_BUFFER_LINES;
 constexpr uint32_t DISPLAY_TRANSFER_BYTES = DISPLAY_BUFFER_PIXELS * sizeof(uint16_t);
-
 static i2c_master_dev_handle_t s_boot_pmu_dev = nullptr;
 
 int pmu_register_read(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t len)
@@ -101,6 +102,7 @@ bool recover_board_power()
         .task_stack = 9 * 1024, \
         .task_affinity = -1,    \
         .task_max_sleep_ms = 500,\
+        .task_stack_caps = MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT, \
         .timer_period_ms = 5,   \
     }
 
@@ -109,6 +111,9 @@ extern "C" void app_main(void)
     ESP_UTILS_LOGI("Display ESP32-S3 Storybook Console demo");
     ESP_UTILS_CHECK_FALSE_EXIT(recover_board_power(), "Recover board power failed");
 
+    // Keep the display on the project's proven small DMA buffer path. It costs
+    // some internal SRAM, but the BSP default PSRAM canvas stalled flush
+    // completion on this hardware/app combination.
     bsp_display_cfg_t cfg = {
         .lvgl_port_cfg = LVGL_PORT_INIT_CONFIG(),
         .buffer_size = DISPLAY_BUFFER_PIXELS,
@@ -121,14 +126,21 @@ extern "C" void app_main(void)
     };
     ESP_UTILS_CHECK_NULL_EXIT(bsp_display_start_with_config(&cfg), "Start display failed");
     ESP_UTILS_CHECK_ERROR_EXIT(bsp_display_backlight_on(), "Turn on display backlight failed");
+    ESP_UTILS_LOGI(
+        "Heap after display: free=%u internal=%u largest_internal=%u psram=%u",
+        static_cast<unsigned>(esp_get_free_heap_size()),
+        static_cast<unsigned>(heap_caps_get_free_size(MALLOC_CAP_INTERNAL)),
+        static_cast<unsigned>(heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL)),
+        static_cast<unsigned>(heap_caps_get_free_size(MALLOC_CAP_SPIRAM))
+    );
     esp_err_t settings_ret = suite::SettingsService::instance().begin();
     if (settings_ret != ESP_OK) {
         ESP_UTILS_LOGW("Init settings service degraded [%s]", esp_err_to_name(settings_ret));
     }
 
-    esp_err_t wifi_ret = suite::SettingsService::instance().ensureWifiStarted();
-    if (wifi_ret != ESP_OK) {
-        ESP_UTILS_LOGW("Preload Wi-Fi degraded [%s]", esp_err_to_name(wifi_ret));
+    esp_err_t font_ret = suite::UiFontService::instance().begin();
+    if (font_ret != ESP_OK) {
+        ESP_UTILS_LOGW("Preload Chinese font degraded [%s]", esp_err_to_name(font_ret));
     }
 
     LvLock::registerCallbacks([](int timeout_ms) {
@@ -204,4 +216,5 @@ extern "C" void app_main(void)
             ESP_UTILS_CHECK_FALSE_EXIT(status_bar->setWifiIconState(wifi_state), "Refresh wifi failed");
         }, 1000, phone);
     }
+
 }

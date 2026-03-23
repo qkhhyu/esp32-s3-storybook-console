@@ -9,11 +9,40 @@
 #endif
 #include "phone/private/esp_brookesia_phone_utils.hpp"
 #include "esp_brookesia_app_launcher_icon.hpp"
+#include "suite_ui_font_service.hpp"
 
 using namespace std;
 using namespace esp_brookesia::gui;
 
 namespace esp_brookesia::systems::phone {
+
+namespace {
+
+bool containsUtf8Multibyte(const char *text)
+{
+    if (text == nullptr) {
+        return false;
+    }
+
+    for (const unsigned char *p = reinterpret_cast<const unsigned char *>(text); *p != '\0'; ++p) {
+        if (*p >= 0x80) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+const lv_font_t *resolveLauncherLabelFont(const AppLauncherIcon::Info &info, const AppLauncherIcon::Data &data)
+{
+    if (containsUtf8Multibyte(info.name)) {
+        return suite::UiFontService::instance().getChineseFont16();
+    }
+
+    return static_cast<const lv_font_t *>(data.label.text_font.font_resource);
+}
+
+} // namespace
 
 AppLauncherIcon::AppLauncherIcon(base::Context &core, const Info &info, const Data &data):
     _system_context(core),
@@ -92,6 +121,9 @@ bool AppLauncherIcon::begin(lv_obj_t *parent)
     // Name
     lv_obj_add_style(name_label.get(), _system_context.getDisplay().getCoreContainerStyle(), 0);
     lv_label_set_text_static(name_label.get(), _info.name);
+    lv_obj_set_width(name_label.get(), lv_pct(100));
+    lv_label_set_long_mode(name_label.get(), LV_LABEL_LONG_WRAP);
+    lv_obj_set_style_text_align(name_label.get(), LV_TEXT_ALIGN_CENTER, 0);
 
     /* Save objects */
     _main_obj = main_obj;
@@ -155,7 +187,7 @@ bool AppLauncherIcon::updateByNewData(void)
     // Icon
     lv_obj_set_size(_icon_main_obj.get(), _data.image.default_size.width, _data.image.default_size.height);
     // Label
-    lv_obj_set_style_text_font(_name_label.get(), (lv_font_t *)_data.label.text_font.font_resource, 0);
+    lv_obj_set_style_text_font(_name_label.get(), resolveLauncherLabelFont(_info, _data), 0);
     lv_obj_set_style_text_color(_name_label.get(), lv_color_hex(_data.label.text_color.color), 0);
     lv_obj_set_style_text_opa(_name_label.get(), _data.label.text_color.opacity, 0);
     // Image

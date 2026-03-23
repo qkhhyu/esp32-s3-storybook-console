@@ -1,6 +1,7 @@
 # Name,   Type, SubType, Offset,  Size, Flags
-# Keep a larger factory app partition so the combined demo still has room to grow.
+# Keep the app partition comfortably above the current firmware size and give
+# SPIFFS enough room for a real Chinese UI font.
 nvs,      data, nvs,     0x9000,  0x6000,
 phy_init, data, phy,     0xf000,  0x1000,
-factory,  app,  factory, ,        8M,
-storage,  data, spiffs,  ,        7M,
+factory,  app,  factory, ,        7M,
+storage,  data, spiffs,  ,        8M,

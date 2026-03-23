@@ -5,6 +5,8 @@ idf_component_register(
     REQUIRES
         brookesia_core
         suite_settings_service
+        suite_ui_font_service
         bsp_extra
+        esp_wifi
         waveshare__esp32_s3_touch_amoled_2_06
 )

@@ -2,13 +2,13 @@ dependencies:
   brookesia_core:
     dependencies: []
     source:
-      path: C:\zyu_work\ESP32-S3-Touch-AMOLED-2.06\examples\ESP-IDF-v5.4.2\07_brookesia_suite\components\brookesia_core
+      path: E:\source\esp32-s3-storybook-console\components\brookesia_core
       type: local
     version: 0.6.0-beta2
   bsp_extra:
     dependencies: []
     source:
-      path: C:\zyu_work\ESP32-S3-Touch-AMOLED-2.06\examples\ESP-IDF-v5.4.2\07_brookesia_suite\components\bsp_extra
+      path: E:\source\esp32-s3-storybook-console\components\bsp_extra
       type: local
     version: 0.0.2
   chmorgan/esp-audio-player:

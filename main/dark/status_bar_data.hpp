@@ -25,9 +25,9 @@ constexpr StatusBar::Data STYLESHEET_410_502_DARK_STATUS_BAR_DATA = {
         .size = gui::StyleSize::RECT_PERCENT(100, 10),
         .size_min = gui::StyleSize::RECT_W_PERCENT(100, 24),
         .size_max = gui::StyleSize::RECT_W_PERCENT(100, 50),
-        .background_color = gui::StyleColor::COLOR_WITH_OPACITY(0xFFF9EF, 210),
+        .background_color = gui::StyleColor::COLOR_WITH_OPACITY(0, 0),
         .text_font = gui::StyleFont::HEIGHT_PERCENT(60),
-        .text_color = gui::StyleColor::COLOR(0x785F52),
+        .text_color = gui::StyleColor::COLOR(0xFFFFFF),
     },
     .area = {
         .num = 3,
@@ -44,11 +44,11 @@ constexpr StatusBar::Data STYLESHEET_410_502_DARK_STATUS_BAR_DATA = {
             .icon = {
                 .image_num = 5,
                 .images = {
-                    gui::StyleImage::IMAGE_RECOLOR(&esp_brookesia_image_large_status_bar_battery_level1_36_36, 0xFF9B71),
-                    gui::StyleImage::IMAGE_RECOLOR(&esp_brookesia_image_large_status_bar_battery_level2_36_36, 0xFF9B71),
-                    gui::StyleImage::IMAGE_RECOLOR(&esp_brookesia_image_large_status_bar_battery_level3_36_36, 0xFF9B71),
-                    gui::StyleImage::IMAGE_RECOLOR(&esp_brookesia_image_large_status_bar_battery_level4_36_36, 0xFF9B71),
-                    gui::StyleImage::IMAGE_RECOLOR(&esp_brookesia_image_large_status_bar_battery_charge_36_36, 0xFF9B71),
+                    gui::StyleImage::IMAGE_RECOLOR_WHITE(&esp_brookesia_image_large_status_bar_battery_level1_36_36),
+                    gui::StyleImage::IMAGE_RECOLOR_WHITE(&esp_brookesia_image_large_status_bar_battery_level2_36_36),
+                    gui::StyleImage::IMAGE_RECOLOR_WHITE(&esp_brookesia_image_large_status_bar_battery_level3_36_36),
+                    gui::StyleImage::IMAGE_RECOLOR_WHITE(&esp_brookesia_image_large_status_bar_battery_level4_36_36),
+                    gui::StyleImage::IMAGE_RECOLOR_WHITE(&esp_brookesia_image_large_status_bar_battery_charge_36_36),
                 },
             },
         },
@@ -59,10 +59,10 @@ constexpr StatusBar::Data STYLESHEET_410_502_DARK_STATUS_BAR_DATA = {
             .icon = {
                 .image_num = 4,
                 .images = {
-                    gui::StyleImage::IMAGE_RECOLOR(&esp_brookesia_image_large_status_bar_wifi_close_36_36, 0x8AB8FF),
-                    gui::StyleImage::IMAGE_RECOLOR(&esp_brookesia_image_large_status_bar_wifi_level1_36_36, 0x8AB8FF),
-                    gui::StyleImage::IMAGE_RECOLOR(&esp_brookesia_image_large_status_bar_wifi_level2_36_36, 0x8AB8FF),
-                    gui::StyleImage::IMAGE_RECOLOR(&esp_brookesia_image_large_status_bar_wifi_level3_36_36, 0x8AB8FF),
+                    gui::StyleImage::IMAGE_RECOLOR_WHITE(&esp_brookesia_image_large_status_bar_wifi_close_36_36),
+                    gui::StyleImage::IMAGE_RECOLOR_WHITE(&esp_brookesia_image_large_status_bar_wifi_level1_36_36),
+                    gui::StyleImage::IMAGE_RECOLOR_WHITE(&esp_brookesia_image_large_status_bar_wifi_level2_36_36),
+                    gui::StyleImage::IMAGE_RECOLOR_WHITE(&esp_brookesia_image_large_status_bar_wifi_level3_36_36),
                 },
             },
         },

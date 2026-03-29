@@ -10,7 +10,7 @@
 
 namespace esp_brookesia::systems::phone {
 
-constexpr uint32_t STYLESHEET_410_502_DARK_CORE_DISPLAY_BG_COLOR = 0xFFF6DE;
+constexpr uint32_t STYLESHEET_410_502_DARK_CORE_DISPLAY_BG_COLOR = 0x1A1A1A;
 
 constexpr base::Display::Data STYLESHEET_410_502_DARK_CORE_DISPLAY_DATA = {
     .background = {
@@ -45,12 +45,12 @@ constexpr base::Display::Data STYLESHEET_410_502_DARK_CORE_DISPLAY_DATA = {
     },
     .container = {
         .styles = {
-            { .outline_width = 1, .outline_color = gui::StyleColor::COLOR(0xFFB3C7), },
-            { .outline_width = 2, .outline_color = gui::StyleColor::COLOR(0xFFD48E), },
-            { .outline_width = 1, .outline_color = gui::StyleColor::COLOR(0xF7E38B), },
-            { .outline_width = 2, .outline_color = gui::StyleColor::COLOR(0xA8E6C1), },
-            { .outline_width = 1, .outline_color = gui::StyleColor::COLOR(0x8FD9FF), },
-            { .outline_width = 2, .outline_color = gui::StyleColor::COLOR(0xC3B5FF), },
+            { .outline_width = 1, .outline_color = gui::StyleColor::COLOR(0xeb3b5a), },
+            { .outline_width = 2, .outline_color = gui::StyleColor::COLOR(0xfa8231), },
+            { .outline_width = 1, .outline_color = gui::StyleColor::COLOR(0xf7b731), },
+            { .outline_width = 2, .outline_color = gui::StyleColor::COLOR(0x20bf6b), },
+            { .outline_width = 1, .outline_color = gui::StyleColor::COLOR(0x0fb9b1), },
+            { .outline_width = 2, .outline_color = gui::StyleColor::COLOR(0x2d98da), },
         },
     },
 };
@@ -64,7 +64,7 @@ constexpr base::Manager::Data STYLESHEET_410_502_DARK_CORE_MANAGER_DATA = {
     },
 };
 
-constexpr const char *STYLESHEET_410_502_DARK_CORE_INFO_DATA_NAME = "Storybook Play";
+constexpr const char *STYLESHEET_410_502_DARK_CORE_INFO_DATA_NAME = "Default Dark";
 
 constexpr base::Context::Data STYLESHEET_410_502_DARK_CORE_DATA = {
     .name = STYLESHEET_410_502_DARK_CORE_INFO_DATA_NAME,

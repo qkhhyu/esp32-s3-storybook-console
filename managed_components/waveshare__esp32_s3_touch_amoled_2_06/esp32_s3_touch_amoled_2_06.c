@@ -495,33 +495,25 @@ esp_err_t bsp_touch_new(const bsp_touch_config_t *config, esp_lcd_touch_handle_t
     return esp_lcd_touch_new_i2c_ft5x06(tp_io_handle, &tp_cfg, ret_touch);
 }
 
-static lv_display_t *bsp_display_lcd_init(const bsp_display_cfg_t *cfg)
+static lv_display_t *bsp_display_lcd_init()
 {
-    assert(cfg != NULL);
-
     const bsp_display_config_t disp_config = {
-        .max_transfer_sz = (cfg->trans_size > 0) ?
-                           cfg->trans_size :
-                           (BSP_LCD_H_RES * BSP_LCD_V_RES * BSP_LCD_BITS_PER_PIXEL / 8),
+        .max_transfer_sz = BSP_LCD_H_RES * BSP_LCD_V_RES * BSP_LCD_BITS_PER_PIXEL / 8,
     };
 
     BSP_ERROR_CHECK_RETURN_NULL(bsp_display_new(&disp_config, &panel_handle, &io_handle));
 
-    uint32_t buffer_size = cfg->buffer_size;
-    if (buffer_size == 0) {
+    int buffer_size = 0;
 #if CONFIG_BSP_DISPLAY_LVGL_AVOID_TEAR
-        buffer_size = BSP_LCD_H_RES * BSP_LCD_V_RES;
+    buffer_size = BSP_LCD_H_RES * BSP_LCD_V_RES;
 #else
-        buffer_size = BSP_LCD_DRAW_BUFF_SIZE;
+    buffer_size = BSP_LCD_H_RES * LVGL_BUFFER_HEIGHT;
 #endif /* CONFIG_BSP_DISPLAY_LVGL_AVOID_TEAR */
-    }
 
     const lvgl_port_display_cfg_t disp_cfg = {
         .io_handle = io_handle,
         .panel_handle = panel_handle,
         .buffer_size = buffer_size,
-        .double_buffer = cfg->double_buffer,
-        .trans_size = cfg->trans_size,
 
         .monochrome = false,
         .hres = BSP_LCD_H_RES,
@@ -536,9 +528,11 @@ static lv_display_t *bsp_display_lcd_init(const bsp_display_cfg_t *cfg)
             .mirror_y = false,
         },
         .flags = {
-            .sw_rotate = false,
-            .buff_dma = cfg->flags.buff_dma,
-            .buff_spiram = cfg->flags.buff_spiram,
+            .sw_rotate = true,
+            .buff_dma = false,
+#if CONFIG_BSP_DISPLAY_LVGL_PSRAM
+            .buff_spiram = false,
+#endif
 #if CONFIG_BSP_DISPLAY_LVGL_FULL_REFRESH
             .full_refresh = 1,
 #elif CONFIG_BSP_DISPLAY_LVGL_DIRECT_MODE
@@ -548,7 +542,25 @@ static lv_display_t *bsp_display_lcd_init(const bsp_display_cfg_t *cfg)
             .swap_bytes = true,
 #endif
         }};
-    lv_display_t *disp = lvgl_port_add_disp(&disp_cfg);
+    const lvgl_port_display_rgb_cfg_t rgb_cfg = {
+        .flags = {
+#if CONFIG_BSP_LCD_RGB_BOUNCE_BUFFER_MODE
+            .bb_mode = 1,
+#else
+            .bb_mode = 0,
+#endif
+#if CONFIG_BSP_DISPLAY_LVGL_AVOID_TEAR
+            .avoid_tearing = true,
+#else
+            .avoid_tearing = false,
+#endif
+        }};
+
+#if CONFIG_BSP_LCD_RGB_BOUNCE_BUFFER_MODE
+    ESP_LOGW(TAG, "CONFIG_BSP_LCD_RGB_BOUNCE_BUFFER_MODE");
+#endif
+
+    lv_display_t *disp = lvgl_port_add_disp_rgb(&disp_cfg, &rgb_cfg);
     if (!disp)
     {
         return NULL;
@@ -601,27 +613,11 @@ lv_display_t *bsp_display_start(void)
 lv_display_t *bsp_display_start_with_config(const bsp_display_cfg_t *cfg)
 {
     lv_display_t *disp;
-    bsp_display_cfg_t actual_cfg;
 
     assert(cfg != NULL);
-    actual_cfg = *cfg;
-    if (actual_cfg.buffer_size == 0) {
-        actual_cfg.buffer_size = BSP_LCD_DRAW_BUFF_SIZE;
-    }
-    if (actual_cfg.trans_size == 0) {
-        actual_cfg.trans_size = BSP_LCD_H_RES * BSP_LCD_V_RES * BSP_LCD_BITS_PER_PIXEL / 8;
-    }
-    if (!actual_cfg.double_buffer) {
-        actual_cfg.double_buffer = BSP_LCD_DRAW_BUFF_DOUBLE;
-    }
-    if (!actual_cfg.flags.buff_dma && !actual_cfg.flags.buff_spiram) {
-        actual_cfg.flags.buff_dma = false;
-        actual_cfg.flags.buff_spiram = true;
-    }
+    BSP_ERROR_CHECK_RETURN_NULL(lvgl_port_init(&cfg->lvgl_port_cfg));
 
-    BSP_ERROR_CHECK_RETURN_NULL(lvgl_port_init(&actual_cfg.lvgl_port_cfg));
-
-    BSP_NULL_CHECK(disp = bsp_display_lcd_init(&actual_cfg), NULL);
+    BSP_NULL_CHECK(disp = bsp_display_lcd_init(cfg), NULL);
 
     BSP_NULL_CHECK(disp_indev = bsp_display_indev_init(disp), NULL);
 

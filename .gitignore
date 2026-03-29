@@ -1,17 +1,10 @@
-# ESP-IDF build output
-build/
+/build/
+/.vscode/
+/.idea/
+*.log
+*.tmp
+*.bak
+*.swp
 sdkconfig.old
-dependencies.lock.*
-
-# IDE / local state
-.vscode/
-.idea/
-.dist/
-
-# Python
-__pycache__/
-*.pyc
-
-# OS files
 .DS_Store
 Thumbs.db

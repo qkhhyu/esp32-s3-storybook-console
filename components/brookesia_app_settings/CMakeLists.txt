@@ -1,12 +1,14 @@
-idf_component_register(
+﻿idf_component_register(
     SRCS "esp_brookesia_app_settings.cpp"
     INCLUDE_DIRS "."
-    WHOLE_ARCHIVE
     REQUIRES
         brookesia_core
-        suite_settings_service
-        suite_ui_font_service
-        bsp_extra
-        esp_wifi
-        waveshare__esp32_s3_touch_amoled_2_06
+        settings_service
+    WHOLE_ARCHIVE
+)
+
+set_source_files_properties(
+    esp_brookesia_app_settings.cpp
+    PROPERTIES
+        COMPILE_FLAGS "-Wno-missing-field-initializers"
 )

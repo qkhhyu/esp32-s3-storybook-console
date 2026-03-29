@@ -639,7 +639,6 @@ static void lvgl_port_flush_callback(lv_display_t *drv, const lv_area_t *area, u
     int offsetx2 = area->x2;
     int offsety1 = area->y1;
     int offsety2 = area->y2;
-    esp_err_t flush_ret = ESP_OK;
 
     /* SW rotation enabled */
     if (disp_ctx->flags.sw_rotate && (disp_ctx->current_rotation > LV_DISPLAY_ROTATION_0)) {
@@ -713,27 +712,13 @@ static void lvgl_port_flush_callback(lv_display_t *drv, const lv_area_t *area, u
             && (disp_ctx->flags.direct_mode || disp_ctx->flags.full_refresh)) {
         if (lv_disp_flush_is_last(drv)) {
             /* If the interface is I80 or SPI, this step cannot be used for drawing. */
-            flush_ret = esp_lcd_panel_draw_bitmap(
-                disp_ctx->panel_handle, 0, 0, lv_disp_get_hor_res(drv), lv_disp_get_ver_res(drv), color_map
-            );
-            if (flush_ret != ESP_OK) {
-                ESP_LOGW("esp_lvgl_port", "Display flush failed: %s", esp_err_to_name(flush_ret));
-                lv_disp_flush_ready(drv);
-                return;
-            }
+            esp_lcd_panel_draw_bitmap(disp_ctx->panel_handle, 0, 0, lv_disp_get_hor_res(drv), lv_disp_get_ver_res(drv), color_map);
             /* Waiting for the last frame buffer to complete transmission */
             xSemaphoreTake(disp_ctx->trans_sem, 0);
             xSemaphoreTake(disp_ctx->trans_sem, portMAX_DELAY);
         }
     } else {
-        flush_ret = esp_lcd_panel_draw_bitmap(
-            disp_ctx->panel_handle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, color_map
-        );
-        if (flush_ret != ESP_OK) {
-            ESP_LOGW("esp_lvgl_port", "Display flush failed: %s", esp_err_to_name(flush_ret));
-            lv_disp_flush_ready(drv);
-            return;
-        }
+        esp_lcd_panel_draw_bitmap(disp_ctx->panel_handle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, color_map);
     }
 
     if (disp_ctx->disp_type == LVGL_PORT_DISP_TYPE_RGB || (disp_ctx->disp_type == LVGL_PORT_DISP_TYPE_DSI

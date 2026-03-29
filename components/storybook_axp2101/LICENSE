@@ -1,0 +1,6 @@
+MIT License
+
+Copyright (c) 2022 Lewis He
+
+This component vendors the minimal AXP2101 PMU support files from the
+Waveshare ESP32-S3 Touch AMOLED 2.06 AXP2101 example for local project use.

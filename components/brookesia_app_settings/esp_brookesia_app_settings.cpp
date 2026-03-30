@@ -1,15 +1,17 @@
-﻿/*
+/*
  * SPDX-FileCopyrightText: 2026
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <algorithm>
 #include <cstdio>
 #include <list>
 #include <string>
 #include <vector>
 #include "esp_brookesia.hpp"
 #include "settings_service.hpp"
+#include "storybook_ui_helpers.hpp"
 #include "systems/phone/assets/esp_brookesia_phone_assets.h"
 #ifdef ESP_UTILS_LOG_TAG
 #   undef ESP_UTILS_LOG_TAG
@@ -37,11 +39,13 @@ constexpr base::App::Config make_core_config()
     return config;
 }
 
-constexpr phone::App::Config make_phone_config()
+phone::App::Config make_phone_config()
 {
-    auto config = phone::App::Config::SIMPLE_CONSTRUCTOR(nullptr, true, false);
-    config.app_launcher_page_index = 0;
-    return config;
+    storybook::ui::PhoneAppChromeOptions options = {};
+    options.show_status_bar = true;
+    options.show_navigation_bar = false;
+    options.launcher_page_index = 0;
+    return storybook::ui::makePhoneAppConfig(options);
 }
 
 lv_obj_t *create_card(lv_obj_t *parent, uint32_t base_color)
@@ -135,19 +139,21 @@ public:
         ESP_UTILS_CHECK_ERROR_RETURN(service.ensureWifiStarted(), false, "Start Wi-Fi service failed");
 
         lv_obj_t *screen = lv_screen_active();
-        lv_obj_set_style_bg_color(screen, lv_color_hex(0xFFF7F0), 0);
-        lv_obj_set_style_bg_grad_color(screen, lv_color_hex(0xFFE7CB), 0);
-        lv_obj_set_style_bg_grad_dir(screen, LV_GRAD_DIR_VER, 0);
+        storybook::ui::applyScreenVerticalGradient(screen, 0xFFF7F0, 0xFFE7CB);
 
-        _root = lv_obj_create(screen);
-        lv_obj_remove_style_all(_root);
-        lv_obj_set_size(_root, lv_pct(100), lv_pct(100));
-        lv_obj_set_style_pad_all(_root, 14, 0);
-        lv_obj_set_style_pad_row(_root, 12, 0);
-        lv_obj_set_layout(_root, LV_LAYOUT_FLEX);
-        lv_obj_set_flex_flow(_root, LV_FLEX_FLOW_COLUMN);
-        lv_obj_set_scroll_dir(_root, LV_DIR_VER);
-        lv_obj_set_style_bg_opa(_root, LV_OPA_TRANSP, 0);
+        storybook::ui::StatusBarBackdropStyle backdrop_style = {};
+        backdrop_style.color_from = 0x8B573F;
+        backdrop_style.color_to = 0xC47A57;
+        backdrop_style.extra_height = 10;
+        storybook::ui::createStatusBarBackdrop(screen, backdrop_style);
+
+        storybook::ui::ColumnRootStyle root_style = {};
+        root_style.side_padding = 14;
+        root_style.top_padding = 14;
+        root_style.bottom_padding = 14;
+        root_style.row_padding = 12;
+        root_style.reserve_status_bar = true;
+        _root = storybook::ui::createColumnRoot(screen, root_style);
 
         buildHeroCard();
         buildDeviceInfoCard();
@@ -903,6 +909,7 @@ ESP_UTILS_REGISTER_PLUGIN_WITH_CONSTRUCTOR(systems::base::App, SettingsApp, APP_
 })
 
 } // namespace esp_brookesia::apps
+
 
 
 
